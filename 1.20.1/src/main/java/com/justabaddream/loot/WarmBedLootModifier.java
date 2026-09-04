@@ -29,7 +29,7 @@ public class WarmBedLootModifier extends LootModifier {
             "warm_bed_injection",
             () -> RecordCodecBuilder.create(inst ->
                     inst.group(
-                            LootItemCondition.CODEC.listOf()
+                            LootItemCondition.DIRECT_CODEC.listOf()
                                     .fieldOf("conditions")
                                     .forGetter(lm -> ((WarmBedLootModifier) lm).conditions)
                     ).apply(inst, WarmBedLootModifier::new)

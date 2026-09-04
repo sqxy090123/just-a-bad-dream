@@ -28,11 +28,11 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -160,24 +160,15 @@ public class DreamEventHandler {
     // 2. 睡觉躺下 / 睡醒
     // ========================================================================
 
-    /** LAY 模式：玩家 startSleeping 成功后立即触发备份 */
+    /** LAY 模式：玩家尝试在温暖的床上睡觉时触发备份 */
     @SubscribeEvent
-    public void onPlayerStartSleeping(PlayerEvent.PlayerStartSleepingEvent event) {
+    public void onPlayerSleepInBed(PlayerSleepInBedEvent event) {
         if (event.getEntity().level().isClientSide) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        // 只有在温暖的床上才触发
-        Optional<BlockPos> bedPos = player.getSleepingPos();
+        var bedPos = event.getOptionalPos();
         if (bedPos.isEmpty()) return;
         BlockState state = player.level().getBlockState(bedPos.get());
         if (!(state.getBlock() instanceof WarmBedBlock)) return;
-
-        // 未充能床 → 阻止入睡
-        if (!state.getValue(WarmBedBlock.CHARGED)) {
-            event.setCanceled(true);
-            player.sendSystemMessage(Component.translatable("jabbadream.chat.bed_uncharged"), true);
-            return;
-        }
-
         if (BadDreamCommands.RuntimeOverrides.effectiveTrigger() == JABDConfig.BedTriggerMode.LAY) {
             triggerDreamEnter(player, findBedHead(player.level(), bedPos.get(), state), "LAY");
         }
@@ -254,11 +245,6 @@ public class DreamEventHandler {
         boolean totemWouldSave = false;
         if (BadDreamCommands.RuntimeOverrides.effectiveCheckTotem()) {
             totemWouldSave = hasValidTotem(player, BadDreamCommands.RuntimeOverrides.effectiveTotemSlot());
-            // 还需要检测 ForgeHooks#onLivingUseTotem（某些模组自定义"类图腾物品"）
-            if (!totemWouldSave) {
-                totemWouldSave = ForgeHooks.onLivingUseTotem(player, event.getSource(), player.getMainHandItem()) != null
-                              || ForgeHooks.onLivingUseTotem(player, event.getSource(), player.getOffhandItem()) != null;
-            }
         }
 
         if (totemWouldSave) {
@@ -276,7 +262,7 @@ public class DreamEventHandler {
 
         String backupId = state.getBackupId();
         int delayTicks = JABDConfig.SERVER.rollbackDelayTicks.get();
-        int runAt = player.server.overworld().getGameTime() + delayTicks;
+        int runAt = (int)(player.server.overworld().getGameTime() + delayTicks);
 
         // 回档策略：命令 RuntimeOverrides > 配置文件 rollbackStrategy（默认 SILENT）
         BackupRollbackHandler.RollbackStrategy strategy = resolveStrategyFromConfig();
@@ -309,10 +295,10 @@ public class DreamEventHandler {
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.getPhase() != TickEvent.Phase.END || event.getServer().isStopped()) return;
+        if (event.phase != TickEvent.Phase.END || event.getServer().isStopped()) return;
         if (PENDING_ROLLBACK.isEmpty()) return;
 
-        int now = event.getServer().overworld().getGameTime();
+        int now = (int) event.getServer().overworld().getGameTime();
         List<Map.Entry<UUID, RollbackTask>> due = new ArrayList<>();
         for (var it = PENDING_ROLLBACK.entrySet().iterator(); it.hasNext(); ) {
             var e = it.next();
@@ -341,15 +327,6 @@ public class DreamEventHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!player.hasEffect(JABDMobEffects.PANIC.get())) return;
         event.setResult(Event.Result.DENY);
-        sendPanicMessage(player, "jabbadream.chat.panic_sleep");
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onPanicPreventStartSleeping(PlayerEvent.PlayerStartSleepingEvent event) {
-        if (event.getEntity().level().isClientSide) return;
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (!player.hasEffect(JABDMobEffects.PANIC.get())) return;
-        event.setCanceled(true);
         sendPanicMessage(player, "jabbadream.chat.panic_sleep");
     }
 
@@ -419,7 +396,7 @@ public class DreamEventHandler {
             HopperBlock.class, DispenserBlock.class, DropperBlock.class,
             // 红石/合成辅助
             CraftingTableBlock.class, StonecutterBlock.class, LoomBlock.class,
-            CartographyTableBlock.class, FletchingTableBlock.class, SmithingTableBlock,
+            CartographyTableBlock.class, FletchingTableBlock.class, SmithingTableBlock.class,
             GrindstoneBlock.class, LecternBlock.class, ComposterBlock.class,
             JukeboxBlock.class, NoteBlock.class, CommandBlock.class, StructureBlock.class,
             JigsawBlock.class, SculkSensorBlock.class, SculkCatalystBlock.class,

@@ -224,18 +224,22 @@ public class BadDreamCommands {
 
     private static int showStatus(CommandSourceStack src, Collection<ServerPlayer> players) {
         for (ServerPlayer p : players) {
-            DreamStateCapability.get(p).ifPresentOrElse(state -> {
-                String line;
-                if (state.isInDreamState()) {
-                    line = String.format("§6%s §f— 已处于 §a梦境现实叠加态§f，醒来于 tick §e%s§f，备份ID §e%s",
-                            p.getGameProfile().getName(),
-                            state.getWakeUpTime(),
-                            state.getBackupId() == null ? "§c<无>" : state.getBackupId());
-                } else {
-                    line = String.format("§6%s §f— 未进入叠加态。", p.getGameProfile().getName());
-                }
-                src.sendSuccess(() -> Component.literal(line), false);
-            }, () -> src.sendFailure(Component.literal("§c无法读取 " + p.getGameProfile().getName() + " 的 Capability！")));
+            var opt = DreamStateCapability.get(p).resolve();
+            if (opt.isEmpty()) {
+                src.sendFailure(Component.literal("§c无法读取 " + p.getGameProfile().getName() + " 的 Capability！"));
+                continue;
+            }
+            DreamStateCapability.IDreamState state = opt.get();
+            String line;
+            if (state.isInDreamState()) {
+                line = String.format("§6%s §f— 已处于 §a梦境现实叠加态§f，醒来于 tick §e%s§f，备份ID §e%s",
+                        p.getGameProfile().getName(),
+                        state.getWakeUpTime(),
+                        state.getBackupId() == null ? "§c<无>" : state.getBackupId());
+            } else {
+                line = String.format("§6%s §f— 未进入叠加态。", p.getGameProfile().getName());
+            }
+            src.sendSuccess(() -> Component.literal(line), false);
         }
         return 1;
     }
@@ -435,8 +439,8 @@ public class BadDreamCommands {
         // Forge 的 config reload 需走 net.minecraftforge.fml.config.ConfigTracker；
         // 此处提供一个"最小实现"：清除运行时覆盖
         RuntimeOverrides.clear();
-        src.sendSuccess(() -> Component.literal("§a已清除 /baddream 运行时覆盖，恢复到配置文件值。",
-                ChatFormatting.GREEN), true);
+        src.sendSuccess(() -> Component.literal("§a已清除 /baddream 运行时覆盖，恢复到配置文件值。")
+                .withStyle(ChatFormatting.GREEN), true);
         return 1;
     }
 

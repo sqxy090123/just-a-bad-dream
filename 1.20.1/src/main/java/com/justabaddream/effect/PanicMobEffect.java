@@ -31,11 +31,5 @@ public class PanicMobEffect extends MobEffect {
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int pDuration, int pAmplifier) {
-        // 不需要每 tick 执行；事件驱动即可
-        return false;
-    }
-
-    @Override
     public boolean isBeneficial() { return false; }
 }

@@ -256,7 +256,7 @@ public class BackupRollbackHandler {
                 // 至少回满血和饥饿，避免接下来死亡
                 who.setHealth(who.getMaxHealth());
                 who.getFoodData().setFoodLevel(20);
-                who.getFoodData().setSaturationLevel(20f);
+                who.getFoodData().setSaturation(20);
                 who.hurtTime = 0;
                 who.deathTime = 0;
                 who.setDeltaMovement(Vec3.ZERO);
@@ -343,10 +343,8 @@ public class BackupRollbackHandler {
     @Nullable
     private static ServerPlayer forceReloadSinglePlayer(MinecraftServer server, ServerPlayer p) {
         try {
-            ServerLevel level = p.serverLevel();
-            boolean fromEndGate = false;
-            // 1.20.1 PlayerList#respawn(ServerPlayer, boolean keepEverything, boolean fromEndGate)
-            ServerPlayer respawned = server.getPlayerList().respawn(p, true, fromEndGate);
+            // 1.20.1 PlayerList#respawn(ServerPlayer, boolean keepEverything)
+            ServerPlayer respawned = server.getPlayerList().respawn(p, true);
             // 解除冻结（恢复重力），如果是被回档触发者由 applyPanic 再加状态
             respawned.setNoGravity(false);
             p.setNoGravity(false);
@@ -434,28 +432,6 @@ public class BackupRollbackHandler {
             // 用 scheduled future 不阻塞主线程 tick 计数
         });
         // 简单做法：60 tick（3s）后由 forceReloadAllPlayers 天然重置
-    }
-
-    /** 对所有在线玩家执行「维度假切换」：强制进入 Loading Terrain 过场 */
-    private static void forceReloadAllPlayers(MinecraftServer server) {
-        for (ServerPlayer p : List.copyOf(server.getPlayerList().getPlayers())) {
-            try {
-                // 使用 PlayerList#respawn(keepEverything=true) — 不清除物品，触发过场
-                ServerLevel level = p.serverLevel();
-                boolean fromEndGate = false;
-                // 注意：1.20.1 PlayerList#respawn(ServerPlayer, boolean keepInventory, boolean fromEndGate)
-                // 返回新的 ServerPlayer 实例（连接会被切换到新玩家）
-                ServerPlayer respawned = server.getPlayerList().respawn(p, true, fromEndGate);
-                // 解除冻结（恢复重力），如果是被回档触发者由 applyPanic 再加状态
-                respawned.setNoGravity(false);
-                p.setNoGravity(false);
-            } catch (Throwable t) {
-                JABDMod.LOGGER.warn("[JABD] 为玩家 {} 触发『加入世界中』过场失败", p.getGameProfile().getName(), t);
-                // 兜底：用 teleportTo 相同位置 + 清空速度，让客户端重渲区块
-                p.teleportTo(p.getX(), p.getY(), p.getZ());
-                p.setDeltaMovement(Vec3.ZERO);
-            }
-        }
     }
 
     /** 施加「惊慌」状态，时长取自配置 panicDurationTicks */
@@ -565,11 +541,9 @@ public class BackupRollbackHandler {
             // 1.18+ LevelResource.ROOT 返回 world 目录的绝对路径
             return server.getWorldPath(LevelResource.ROOT);
         } catch (Throwable t) {
-            // 回退：基于 run 目录 + getsaves()
+            // 回退：基于 run 目录 + "world"
             Path serverPath = FMLPaths.GAMEDIR.get();
-            return serverPath.resolve(server.storageSource != null
-                    ? server.storageSource.getLevelId()
-                    : "world");
+            return serverPath.resolve("saves").resolve("world");
         }
     }
 
@@ -585,9 +559,12 @@ public class BackupRollbackHandler {
     /** 关闭存档 IO 层（确保没有进程持有 mca/region 文件句柄） */
     static void closeStorageAccess(MinecraftServer server) {
         try {
-            // 1.18+ storageSource 是 LevelStorageSource.LevelStorageAccess
-            if (server.storageSource != null) {
-                server.storageSource.safeClose();
+            // 1.20.1 storageSource 是 protected — 用反射关闭
+            java.lang.reflect.Field f = MinecraftServer.class.getDeclaredField("storageSource");
+            f.setAccessible(true);
+            Object ss = f.get(server);
+            if (ss != null) {
+                ss.getClass().getMethod("close").invoke(ss);
             }
         } catch (Throwable t) {
             JABDMod.LOGGER.warn("[JABD] 关闭 storageSource 失败，仍将尝试覆盖文件", t);
@@ -595,7 +572,7 @@ public class BackupRollbackHandler {
         // 关闭所有 ServerLevel 的 chunk source
         server.getAllLevels().forEach(level -> {
             try {
-                level.getChunkSource().close(false);
+                level.getChunkSource().close();
             } catch (Throwable ignored) {}
         });
     }
