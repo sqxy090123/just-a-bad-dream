@@ -5,7 +5,6 @@ import com.justabaddream.block.WarmBedBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.BlockBehaviour;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -25,7 +24,7 @@ public final class JABDBlocks {
      * 但在成功睡过一觉后触发"梦境现实叠加态"与存档备份。
      */
     public static final RegistryObject<Block> WARM_BED = register("warm_bed",
-            () -> new WarmBedBlock(BlockBehaviour.Properties.of().strength(0.2F).noOcclusion()));
+            () -> new WarmBedBlock(Block.Properties.of().strength(0.2F).noOcclusion()));
 
     // ==================================================================
 

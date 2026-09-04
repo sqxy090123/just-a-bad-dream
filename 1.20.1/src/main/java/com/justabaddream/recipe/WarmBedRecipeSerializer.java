@@ -50,7 +50,7 @@ public class WarmBedRecipeSerializer implements RecipeSerializer<ShapedRecipe> {
         // 2) 从配置 + 命令 RuntimeOverrides 拿到"有效的特殊物品"
         ResourceLocation itemId = effectiveIngredientId();
         Item special = BuiltInRegistries.ITEM.getOptional(itemId)
-                .or(() -> BuiltInRegistries.ITEM.getOptional(ResourceLocation.withDefaultNamespace("nether_star")))
+                .or(() -> BuiltInRegistries.ITEM.getOptional(new ResourceLocation("nether_star")))
                 .orElseThrow();
 
         // 3) 修改 key 中的 specialKey → 指向配置物品
@@ -101,7 +101,7 @@ public class WarmBedRecipeSerializer implements RecipeSerializer<ShapedRecipe> {
     // ------------------------------------------------------------------
     // 有效的特殊物品 ResLoc（RuntimeOverrides > Config > 校验合法性 > fallback nether_star）
     // ------------------------------------------------------------------
-    public static final ResourceLocation FALLBACK_INGREDIENT = ResourceLocation.withDefaultNamespace("nether_star");
+    public static final ResourceLocation FALLBACK_INGREDIENT = new ResourceLocation("nether_star");
 
     /** 返回"有效的"合成特殊物品：命令覆盖 > 配置；若不存在则回退到下界之星并 warn。 */
     public static ResourceLocation effectiveIngredientId() {

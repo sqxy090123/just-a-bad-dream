@@ -33,6 +33,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
+import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -177,10 +178,10 @@ public class DreamEventHandler {
     /**
      * WAKE_UP 模式（默认）：玩家成功睡过一觉 → 触发备份 & 进入叠加态。
      * <p>
-     * 1.20.1 没有显式 PlayerWakeUpEvent，我们改用 {@link PlayerEvent.PlayerWakeUpEvent} （Forge 提供）。
+     * 1.20.1 Forge 提供 {@link PlayerWakeUpEvent}（顶层类）。
      */
     @SubscribeEvent
-    public void onPlayerWakeUp(PlayerEvent.PlayerWakeUpEvent event) {
+    public void onPlayerWakeUp(PlayerWakeUpEvent event) {
         if (event.getEntity().level().isClientSide) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
