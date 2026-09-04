@@ -5,6 +5,10 @@ on:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
 
+# 默认 GITHUB_TOKEN 仅有只读权限；发布 Release 需要 contents: write
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
