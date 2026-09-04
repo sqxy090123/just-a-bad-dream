@@ -24,18 +24,14 @@ jobs:
           gradle-version: '8.1.1'
 
       - name: Build 1.20.1
-        working-directory: ./1.20.1
-        run: |
-          chmod +x ./gradlew
-          ./gradlew build --no-daemon --stacktrace
+        run: gradle :1.20.1:build --no-daemon --stacktrace
 
       - name: Find JAR
         id: find_jar
-        working-directory: ./1.20.1
         run: |
-          JAR=$(find build/libs -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev.jar" | head -1)
+          JAR=$(find 1.20.1/build/libs -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev.jar" | head -1)
           if [ -z "$JAR" ]; then
-            echo "::error::No JAR found in build/libs"
+            echo "::error::No JAR found in 1.20.1/build/libs"
             exit 1
           fi
           echo "jar_path=$JAR" >> $GITHUB_OUTPUT
