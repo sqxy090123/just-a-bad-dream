@@ -9,7 +9,7 @@ plugins {
 
 allprojects {
     group = 'com.justabaddream'
-    version = '1.0.0'
+    version = '0.0.1'
 }
 
 // 子项目自行管理 toolchain（ForgeGradle 各版本要求不同）
