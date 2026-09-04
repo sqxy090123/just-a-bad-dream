@@ -1,0 +1,16 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.minecraftforge.net/' }
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'JustABadDream'
+
+// 多版本子项目（按需启用；默认完整实现 1.20.1）
+include ':1.20.1'
+// include ':1.19.4'
+// include ':1.18.2'
+// include ':1.16.5'
+// include ':1.12.2'

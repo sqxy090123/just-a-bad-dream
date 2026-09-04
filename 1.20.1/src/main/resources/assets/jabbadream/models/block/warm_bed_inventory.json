@@ -1,0 +1,53 @@
+{
+  "credit": "Warm Bed — inventory (GUI / item-frame model)",
+  "textures": {
+    "particle": "minecraft:block/dark_oak_planks",
+    "plank":    "minecraft:block/dark_oak_planks",
+    "wool_t":   "minecraft:block/magenta_wool",
+    "wool_s":   "minecraft:block/purple_wool"
+  },
+  "elements": [
+    { "from": [ 0, -2, 0 ],  "to": [ 16, 4, 16 ],
+      "faces": {
+        "down":  { "uv": [ 0, 0, 16, 16 ], "texture": "#plank", "cullface": "down" },
+        "up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#wool_t" },
+        "north": { "uv": [ 0, 4, 16, 10 ], "texture": "#plank" },
+        "south": { "uv": [ 0, 4, 16, 10 ], "texture": "#plank" },
+        "west":  { "uv": [ 0, 4, 16, 10 ], "texture": "#plank" },
+        "east":  { "uv": [ 0, 4, 16, 10 ], "texture": "#plank" }
+      }
+    },
+    { "from": [ -4, 0, 0 ], "to": [ 0, 4, 16 ],
+      "faces": {
+        "up":   { "uv": [ 12, 0, 16, 16 ], "texture": "#wool_s" },
+        "west": { "uv": [ 0,  0, 16, 4 ], "texture": "#wool_s", "cullface": "west" },
+        "south":{ "uv": [ 12, 0, 16, 4 ], "texture": "#wool_s" },
+        "north":{ "uv": [ 0,  0,  4, 4 ], "texture": "#wool_s" }
+      }
+    },
+    { "from": [ 0, 0, -4 ], "to": [ 16, 4, 0 ],
+      "faces": {
+        "up":   { "uv": [ 0, 12, 16, 16 ], "texture": "#wool_s" },
+        "north":{ "uv": [ 0,  0, 16, 4 ],  "texture": "#wool_s", "cullface": "north" }
+      }
+    },
+    { "from": [ 16, 0, 0 ], "to": [ 20, 4, 16 ],
+      "faces": {
+        "up":   { "uv": [ 0, 0,  4, 16 ], "texture": "#wool_s" },
+        "east": { "uv": [ 0, 0, 16,  4 ], "texture": "#wool_s", "cullface": "east" },
+        "south":{ "uv": [ 0, 0,  4,  4 ], "texture": "#wool_s" },
+        "north":{ "uv": [ 12,0, 16,  4 ], "texture": "#wool_s" }
+      }
+    }
+  ],
+  "display": {
+    "head":   { "rotation": [ 0, 180, 0 ], "translation": [ 0, -11, 0 ], "scale": [ 1.8, 1.8, 1.8 ] },
+    "gui":    { "rotation": [ 30, 225, 0 ], "translation": [ -2, 0, 0 ], "scale": [ 0.65, 0.65, 0.65 ] },
+    "ground": { "rotation": [ 0, 0, 0 ],   "translation": [ 0, 3, 1 ],    "scale": [ 0.5, 0.5, 0.5 ] },
+    "fixed":  { "rotation": [ 0, 180, 0 ], "translation": [ 0, 0, -4 ],   "scale": [ 1, 1, 1 ] },
+    "firstperson_righthand": { "rotation": [ 0, -90, 25 ], "translation": [ 1.13, 3.2, 1.13 ], "scale": [ 0.67, 0.67, 0.67 ] },
+    "firstperson_lefthand":  { "rotation": [ 0, 90, -25 ], "translation": [ 1.13, 3.2, 1.13 ], "scale": [ 0.67, 0.67, 0.67 ] },
+    "thirdperson_righthand": { "rotation": [ 75, 315, 0 ], "translation": [ -2.5, 4.5, 0.5 ], "scale": [ 0.5, 0.5, 0.5 ] },
+    "thirdperson_lefthand":  { "rotation": [ 75, 135, 0 ], "translation": [ -2.5, 4.5, 0.5 ], "scale": [ 0.5, 0.5, 0.5 ] }
+  }
+}

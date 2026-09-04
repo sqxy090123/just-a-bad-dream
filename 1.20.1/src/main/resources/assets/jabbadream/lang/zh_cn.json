@@ -1,0 +1,45 @@
+{
+  "block.jabbadream.warm_bed": "温暖的床",
+  "item.jabbadream.warm_bed": "温暖的床",
+  "itemGroup.jabbadream": "只是一场噩梦",
+
+  "effect.jabbadream.panic": "惊慌",
+  "effect.jabbadream.panic.desc": "无法入睡，也无法正常使用功能方块",
+
+  "block.minecraft.set_spawn": "重生点已设置（梦境现实叠加态已就绪）",
+
+  "jabbadream.title.return_reality": "正在回归现实……",
+  "jabbadream.title.return_reality.sub": "加载地形中",
+
+  "jabbadream.chat.status_in": "§a你已处于 §6梦境现实叠加态§a，直至下一次睡眠。",
+  "jabbadream.chat.status_out": "§7你从梦境中真正醒来……叠加态解除。",
+  "jabbadream.chat.backup_fail": "§c[JABD] 存档备份失败，叠加态未激活。请检查服务器日志。",
+  "jabbadream.chat.real_death": "§4……你真正死去了，这真的只是一场噩梦。",
+
+  "jabbadream.chat.rollback.death_self_silent": "§4……你从噩梦中惊醒了。世界正在回归现实……",
+  "jabbadream.chat.rollback.death_self_hard":   "§4……你真正死去了。",
+  "jabbadream.chat.rollback.broadcast_silent": "§6[JABD] §9%s 惊醒了……一切似乎只是一场噩梦。",
+  "jabbadream.chat.rollback.broadcast_hard":   "§6[JABD] §c%s 做了一场最糟的噩梦……世界即将重启。",
+  "jabbadream.chat.rollback.wake_self":        "§a✨ 你惊醒了……从噩梦中回归现实。",
+
+  "jabbadream.chat.one_for_all.wake_broadcast": "§9%s 做噩梦了……世界随之颤抖，你也从浅眠中被拽了回来。",
+
+  "jabbadream.chat.totem_save": "§e不死图腾触发，叠加态保留。",
+  "jabbadream.chat.wake_reality": "§a✨ 你惊醒了……从噩梦中回归现实。",
+
+  "jabbadream.chat.panic_sleep": "§c你现在很慌张，无法入睡。",
+  "jabbadream.chat.panic_interact": "§c你现在很慌张，无法安心使用它。",
+
+  "jabbadream.chat.bed_uncharged": "§c这张床未充能，无法入睡。手持充能物品右键以恢复。",
+  "jabbadream.chat.bed_recharged": "§a温暖的床已充能！可以再次入睡了。",
+
+  "jabbadream.command.status": "玩家 §6%s§r 的叠加态：%s",
+  "jabbadream.command.cleared": "§a已清除 §6%s§a 的梦境现实叠加态。",
+
+  "jabbadream.tooltip.warm_bed.line1_prefix": "§7将床配方中的羊毛替换为 §5",
+  "jabbadream.tooltip.warm_bed.line1_suffix": "§7 合成",
+  "jabbadream.tooltip.warm_bed.line2": "§7睡一觉后进入 §5梦境现实叠加态",
+  "jabbadream.tooltip.warm_bed.line3": "§7真正死亡时世界自动回档，并惊醒于床边。",
+  "jabbadream.tooltip.warm_bed.line4": "§5（惊慌期间无法入睡 / 使用功能方块）",
+  "jabbadream.tooltip.warm_bed.line5": "§7一次性使用 — 睡醒后需用充能物品右键恢复"
+}

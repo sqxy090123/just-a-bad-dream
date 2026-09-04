@@ -1,0 +1,39 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "plank":    "minecraft:block/dark_oak_planks",
+    "wool":     "minecraft:block/purple_wool",
+    "wool_top": "minecraft:block/magenta_wool",
+    "pillow":   "minecraft:block/white_wool",
+    "particle": "#plank"
+  },
+  "elements": [
+    { "from": [ 0, 3, 0 ], "to": [ 16, 9, 16 ],
+      "faces": {
+        "down":  { "uv": [ 0, 0, 16, 16 ], "texture": "#plank", "cullface": "down" },
+        "north": { "uv": [ 0, 9, 16, 15 ], "texture": "#plank" },
+        "south": { "uv": [ 0, 9, 16, 15 ], "texture": "#plank", "cullface": "south" },
+        "west":  { "uv": [ 0, 9, 16, 15 ], "texture": "#plank", "cullface": "west" },
+        "east":  { "uv": [ 0, 9, 16, 15 ], "texture": "#plank", "cullface": "east" }
+      }
+    },
+    { "from": [ 0, 9, 0 ], "to": [ 16, 15, 16 ],
+      "faces": {
+        "up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#wool_top" },
+        "north": { "uv": [ 0, 15, 16, 21 ], "texture": "#wool" },
+        "south": { "uv": [ 0, 15, 16, 21 ], "texture": "#wool", "cullface": "south" },
+        "west":  { "uv": [ 0, 15, 16, 21 ], "texture": "#wool", "cullface": "west" },
+        "east":  { "uv": [ 0, 15, 16, 21 ], "texture": "#wool", "cullface": "east" }
+      }
+    },
+    { "from": [ 2, 11, 1 ], "to": [ 14, 14, 5 ],
+      "faces": {
+        "up":    { "uv": [ 2,  1, 14, 5 ], "texture": "#pillow" },
+        "north": { "uv": [ 2, 11, 14, 14 ], "texture": "#pillow" },
+        "south": { "uv": [ 2, 11, 14, 14 ], "texture": "#pillow" },
+        "west":  { "uv": [ 1, 11,  5, 14 ], "texture": "#pillow" },
+        "east":  { "uv": [ 1, 11,  5, 14 ], "texture": "#pillow" }
+      }
+    }
+  ]
+}

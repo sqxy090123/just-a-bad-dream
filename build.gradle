@@ -1,0 +1,36 @@
+// ============================================================
+// Just A Bad Dream (JABD) — 根聚合构建脚本
+// 多版本 Forge 模组：1.12.2 ~ 1.20.1
+// ============================================================
+
+plugins {
+    id 'java'
+}
+
+allprojects {
+    group = 'com.justabaddream'
+    version = '1.0.0'
+}
+
+// 子项目自行管理 toolchain（ForgeGradle 各版本要求不同）
+subprojects {
+    apply plugin: 'java'
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    repositories {
+        mavenCentral()
+        maven { url = 'https://maven.minecraftforge.net/' }
+    }
+}
+
+// 聚合任务：构建所有已启用子项目的 jar
+tasks.register('buildAll') {
+    group = 'build'
+    description = 'Build all sub-projects (mod jars).'
+    subprojects.forEach { p ->
+        if (p.tasks.findByName('build') != null) dependsOn(":${p.name}:build")
+    }
+}

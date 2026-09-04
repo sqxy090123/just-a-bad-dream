@@ -1,0 +1,99 @@
+// ============================================================
+// JABD — Minecraft 1.20.1 + Forge 47.x.x 子项目
+// 完整实现版本
+// ============================================================
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '5.1.+'
+}
+
+// ========== 版本信息 ==========
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+// Mojang 映射 / Forge 版本
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+
+    runs {
+        configureEach {
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            workingDirectory project.file('run')
+            mods {
+                jabbadream {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        client {
+            workingDirectory project.file('run/client')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+            workingDirectory project.file('run/server')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        data {
+            workingDirectory project.file('run-data')
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
+}
+
+// ========== 资源处理（mods.toml 占位符替换） ==========
+processResources {
+    def props = [
+        'version'     : project.version,
+        'mod_id'      : 'jabbadream',
+        'mod_name'    : 'Just A Bad Dream',
+        'mod_authors' : 'JABD Team',
+        'mod_description' : '只是一场噩梦 — 温暖的床：梦境现实叠加态，死亡回档。',
+        'license'     : 'MIT',
+        'mc_versions' : '[1.20.1,1.21)',
+        'forge_versions' : '[47,)'
+    ]
+    inputs.properties props
+    filesMatching('META-INF/mods.toml') {
+        expand props
+    }
+    filesMatching('pack.mcmeta') {
+        expand props
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+            'Specification-Title'     : 'jabbadream',
+            'Specification-Vendor'    : 'jabbadream',
+            'Specification-Version'   : '1',
+            'Implementation-Title'    : project.name,
+            'Implementation-Version'  : project.jar.archiveVersion,
+            'Implementation-Vendor'   : 'jabbadream',
+            'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories { }
+}

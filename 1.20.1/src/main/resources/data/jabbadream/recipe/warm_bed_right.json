@@ -1,0 +1,20 @@
+{
+  "type": "jabbadream:warm_bed",
+  "category": "misc",
+  "pattern": [
+    "WWN",
+    "WW#",
+    "PPP"
+  ],
+  "key": {
+    "W": { "tag": "minecraft:wool" },
+    "P": { "tag": "minecraft:planks" },
+    "N": { "item": "minecraft:nether_star" },
+    "#": { "tag": "minecraft:wool" }
+  },
+  "specialKey": "N",
+  "result": {
+    "item": "jabbadream:warm_bed",
+    "count": 1
+  }
+}

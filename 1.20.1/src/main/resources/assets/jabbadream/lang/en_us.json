@@ -1,0 +1,42 @@
+{
+  "block.jabbadream.warm_bed": "Warm Bed",
+  "item.jabbadream.warm_bed": "Warm Bed",
+  "itemGroup.jabbadream": "Just A Bad Dream",
+
+  "effect.jabbadream.panic": "Panic",
+  "effect.jabbadream.panic.desc": "Cannot sleep, nor properly use functional blocks.",
+
+  "block.minecraft.set_spawn": "Respawn point set (Dream-Real Superposition armed).",
+
+  "jabbadream.title.return_reality": "Returning to reality…",
+  "jabbadream.title.return_reality.sub": "Loading terrain",
+
+  "jabbadream.chat.status_in": "§aYou are in the §6Dream-Real Superposition§a until the next sleep.",
+  "jabbadream.chat.status_out": "§7You truly wake up from the dream — superposition lifted.",
+  "jabbadream.chat.backup_fail": "§c[JABD] Backup failed, superposition NOT activated. Check server log.",
+  "jabbadream.chat.real_death": "§4…You truly died. It truly was just a bad dream.",
+
+  "jabbadream.chat.rollback.death_self_silent": "§4…You jolt awake from the nightmare. The world is returning to reality…",
+  "jabbadream.chat.rollback.death_self_hard":   "§4…You truly died.",
+  "jabbadream.chat.rollback.broadcast_silent": "§6[JABD] §9%s jolted awake… as if it was all just a dream.",
+  "jabbadream.chat.rollback.broadcast_hard":   "§6[JABD] §c%s has awoken from their worst nightmare… the world will now restart.",
+  "jabbadream.chat.rollback.wake_self":        "§a✨ You jolt awake… back from the nightmare.",
+
+  "jabbadream.chat.one_for_all.wake_broadcast": "§9%s had a nightmare… the world shudders, and you are pulled back from the edge of sleep too.",
+
+  "jabbadream.chat.totem_save": "§eTotem of Undying triggered; superposition retained.",
+  "jabbadream.chat.wake_reality": "§a✨ You jolt awake… back from the nightmare.",
+
+  "jabbadream.chat.panic_sleep": "§cYou are in a panic and cannot sleep.",
+  "jabbadream.chat.panic_interact": "§cYou are in a panic and cannot focus on using this.",
+
+  "jabbadream.chat.bed_uncharged": "§cThis bed is uncharged and cannot be used. Right-click with a recharge item to restore it.",
+  "jabbadream.chat.bed_recharged": "§aThe Warm Bed is recharged! You can sleep again.",
+
+  "jabbadream.tooltip.warm_bed.line1_prefix": "§7Crafted by replacing any wool with §5",
+  "jabbadream.tooltip.warm_bed.line1_suffix": "§7 in the bed recipe",
+  "jabbadream.tooltip.warm_bed.line2": "§7Sleep once to enter §5Dream-Real Superposition",
+  "jabbadream.tooltip.warm_bed.line3": "§7Real death rollbacks the world, and you wake up in panic.",
+  "jabbadream.tooltip.warm_bed.line4": "§5(While panicked you cannot sleep or use functional blocks.)",
+  "jabbadream.tooltip.warm_bed.line5": "§7Single use — recharge with the crafting item after waking"
+}
