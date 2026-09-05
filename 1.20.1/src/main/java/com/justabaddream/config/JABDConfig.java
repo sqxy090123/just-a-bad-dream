@@ -6,6 +6,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 
+import java.util.List;
+
 /**
  * JABD 配置文件（Forge 1.18+ 推荐的 ForgConfigSpec 方案）。
  *
@@ -73,8 +75,8 @@ public class JABDConfig {
         /** 叠加态名称（可自定义语言） — 仅用于调试消息 */
         public final ForgeConfigSpec.ConfigValue<String> statusName;
 
-        /** "正在回归现实…"过渡 Title 的淡入/停留/淡出时长（tick） */
-        public final ForgeConfigSpec.ConfigValue<int[]> returnRealityTitleTicks;
+        /** "正在回归现实..."过渡 Title 的淡入/停留/淡出时长（tick） */
+        public final ForgeConfigSpec.ConfigValue<List<? extends Integer>> returnRealityTitleTicks;
 
         /** 温暖的床配方：替换掉任意一个羊毛位置的"特殊物品"（ResourceLocation）。默认 minecraft:nether_star */
         public final ForgeConfigSpec.ConfigValue<String> warmBedIngredient;
@@ -112,9 +114,9 @@ public class JABDConfig {
             statusName = builder
                     .define("statusDisplayName", "梦境现实叠加态");
             returnRealityTitleTicks = builder
-                    .comment("回档时“正在回归现实…”全屏 Title 的 [淡入, 停留, 淡出] tick 数",
+                    .comment("回档时\"正在回归现实...\"全屏 Title 的 [淡入, 停留, 淡出] tick 数",
                             " 20 tick = 1 秒；默认 [10, 60, 20] 约 4.5 秒")
-                    .define("returnRealityTitleTicks", new int[]{10, 60, 20});
+                    .defineList("returnRealityTitleTicks", List.of(10, 60, 20), obj -> obj instanceof Integer);
             builder.pop();
 
             builder.push("warm_bed_crafting");
@@ -172,7 +174,7 @@ public class JABDConfig {
                     .defineInRange("rollbackDelayTicks", 2, 0, 200);
             rollbackStrategy = builder
                     .comment("回档策略：",
-                            " SILENT = ⭐ 无感回档（默认推荐）：不踢出玩家，播放「正在回归现实…」加载屏，完成后给予「惊慌」效果。",
+                            " SILENT = ⭐ 无感回档（默认推荐）：不踢出玩家，播放「正在回归现实...」加载屏，完成后给予「惊慌」效果。",
                             " SOFT   = 回档后踢出所有玩家，提示重新进入服务器。",
                             " HARD   = 回档后执行 System.exit(0)，由启动脚本自动重启。")
                     .defineEnum("rollbackStrategy", RollbackStrategy.SILENT);

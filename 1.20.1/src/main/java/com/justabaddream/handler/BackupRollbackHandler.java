@@ -401,10 +401,10 @@ public class BackupRollbackHandler {
      * 直接使用网络包以保证 1.20.1 行为稳定（不依赖 ServerPlayer 重载方法名差异）。
      */
     private static void sendReturnRealityTitle(ServerPlayer who) {
-        int[] ticks = JABDConfig.COMMON.returnRealityTitleTicks.get();
-        int fadeIn  = ticks.length > 0 ? ticks[0] : 10;
-        int stay    = ticks.length > 1 ? ticks[1] : 60;
-        int fadeOut = ticks.length > 2 ? ticks[2] : 20;
+        List<? extends Integer> ticks = JABDConfig.COMMON.returnRealityTitleTicks.get();
+        int fadeIn  = ticks.size() > 0 ? ticks.get(0) : 10;
+        int stay    = ticks.size() > 1 ? ticks.get(1) : 60;
+        int fadeOut = ticks.size() > 2 ? ticks.get(2) : 20;
 
         Component title    = Component.translatable("jabbadream.title.return_reality")
                 .withStyle(s -> s.withColor(0x6FD7FF).withBold(true));

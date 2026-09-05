@@ -3,7 +3,14 @@ name: Build and Release
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+      # 正式版：0.0.1
+      - '[0-9].[0-9].[0-9]*'
+      # 预发布版：0.0.1-beta / 0.0.1-fix / 0.0.1-alpha
+      - '[0-9].[0-9].[0-9]*-beta'
+      - '[0-9].[0-9].[0-9]*-fix'
+      - '[0-9].[0-9].[0-9]*-alpha'
+      # alpha 带序号：0.0.1-alpha-1
+      - '[0-9].[0-9].[0-9]*-alpha-[0-9]*'
 
 # 默认 GITHUB_TOKEN 仅有只读权限；发布 Release 需要 contents: write
 permissions:
@@ -30,24 +37,47 @@ jobs:
       - name: Build 1.20.1
         run: gradle :1.20.1:build --no-daemon --stacktrace
 
-      - name: Find JAR
-        id: find_jar
+      - name: Resolve version & rename JAR
+        id: meta
         run: |
-          JAR=$(find 1.20.1/build/libs -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev.jar" | head -1)
-          if [ -z "$JAR" ]; then
+          # tag 名，如 0.0.1 / 0.0.1-beta / 0.0.1-alpha-1
+          TAG="${GITHUB_REF_NAME}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+          # 游戏版本固定为子项目目录名 1.20.1
+          GAME_VERSION="1.20.1"
+          echo "game_version=$GAME_VERSION" >> $GITHUB_OUTPUT
+
+          # 判断是否为预发布版本（tag 含 -beta / -fix / -alpha）
+          if [[ "$TAG" =~ -(beta|fix|alpha) ]]; then
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+          # 原始构建产物
+          SRC_JAR=$(find 1.20.1/build/libs -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev.jar" | head -1)
+          if [ -z "$SRC_JAR" ]; then
             echo "::error::No JAR found in 1.20.1/build/libs"
             exit 1
           fi
-          echo "jar_path=$JAR" >> $GITHUB_OUTPUT
-          echo "jar_name=$(basename $JAR)" >> $GITHUB_OUTPUT
-          echo "Found JAR: $JAR"
+
+          # 目标文件名：Just-A-Bad-Dream-1.20.1-0.0.1.jar
+          DST_NAME="Just-A-Bad-Dream-${GAME_VERSION}-${TAG}.jar"
+          DST_JAR="1.20.1/build/libs/${DST_NAME}"
+          cp "$SRC_JAR" "$DST_JAR"
+
+          echo "src_jar=$SRC_JAR" >> $GITHUB_OUTPUT
+          echo "dst_jar=$DST_JAR" >> $GITHUB_OUTPUT
+          echo "dst_name=$DST_NAME" >> $GITHUB_OUTPUT
+          echo "Renamed: $SRC_JAR -> $DST_JAR"
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
-          name: JABD ${{ github.ref_name }}
+          name: JABD ${{ steps.meta.outputs.tag }}
           body: |
-            ## Just A Bad Dream (JABD) v${{ github.ref_name }}
+            ## Just A Bad Dream (JABD) v${{ steps.meta.outputs.tag }}
 
             ### 安装
             1. 确保已安装 [Minecraft Forge 1.20.1](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html)
@@ -67,8 +97,8 @@ jobs:
             ---
             Minecraft Forge 1.20.1 | Java 17+
           files: |
-            ${{ steps.find_jar.outputs.jar_path }}
+            ${{ steps.meta.outputs.dst_jar }}
           draft: false
-          prerelease: false
+          prerelease: ${{ steps.meta.outputs.prerelease }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
