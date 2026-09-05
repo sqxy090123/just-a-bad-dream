@@ -93,8 +93,12 @@ public class BackupRollbackHandler {
      */
     public static CompletableFuture<String> requestBackup(@NotNull ServerPlayer player) {
         if (!isBackupAllowed(player.server)) {
+            JABDMod.LOGGER.warn("[JABD] requestBackup 被拒绝：backupOnDedicatedOnly={} isDedicated={}",
+                    JABDConfig.SERVER.backupOnDedicatedOnly.get(),
+                    player.server != null && player.server.isDedicatedServer());
             return CompletableFuture.completedFuture(null);
         }
+        JABDMod.LOGGER.info("[JABD] requestBackup 开始：玩家={}", player.getGameProfile().getName());
 
         // 若已有同玩家的进行中备份：直接复用其结果
         synchronized (PENDING_BACKUPS) {

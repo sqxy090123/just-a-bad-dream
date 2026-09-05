@@ -83,6 +83,12 @@ public class DreamEventHandler {
     private record RollbackTask(UUID playerId, String backupId, int runAtTick,
                                 BackupRollbackHandler.RollbackStrategy strategy) {}
 
+    /** 记录"正在温暖的床上睡觉"的玩家（用于 Tick 兜底检测睡醒，因为 1.20.1 跳过夜晚时 PlayerWakeUpEvent 可能不触发） */
+    private static final Map<UUID, BlockPos> SLEEPING_IN_WARM_BED = new HashMap<>();
+
+    /** 已处理过睡醒的玩家（防止 PlayerWakeUpEvent + Tick 兜底重复触发） */
+    private static final Set<UUID> WAKE_HANDLED = new HashSet<>();
+
     // 回档策略配置 → BackupRollbackHandler 枚举映射
     private static BackupRollbackHandler.RollbackStrategy resolveStrategyFromConfig() {
         JABDConfig.RollbackStrategy cfg = BadDreamCommands.RuntimeOverrides.rollbackStrategy != null
@@ -172,6 +178,12 @@ public class DreamEventHandler {
         if (bedPos.isEmpty()) return;
         BlockState state = player.level().getBlockState(bedPos.get());
         if (!(state.getBlock() instanceof WarmBedBlock)) return;
+
+        // 记录玩家正在温暖的床上睡觉（供 Tick 兜底检测睡醒用）
+        SLEEPING_IN_WARM_BED.put(player.getUUID(), bedPos.get());
+        WAKE_HANDLED.remove(player.getUUID()); // 重置防重入标记
+        JABDMod.LOGGER.info("[JABD] 玩家 {} 开始在温暖的床上睡觉 pos={}", player.getGameProfile().getName(), bedPos.get());
+
         if (BadDreamCommands.RuntimeOverrides.effectiveTrigger() == JABDConfig.BedTriggerMode.LAY) {
             triggerDreamEnter(player, findBedHead(player.level(), bedPos.get(), state), "LAY");
         }
@@ -189,12 +201,36 @@ public class DreamEventHandler {
         if (event.getEntity().level().isClientSide) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
-        JABDMod.LOGGER.info("[JABD] onPlayerWakeUp 触发：玩家={}", player.getGameProfile().getName());
+        JABDMod.LOGGER.info("[JABD] onPlayerWakeUp 触发：玩家={} wakeImmediately={}",
+                player.getGameProfile().getName(), event.wakeImmediately());
 
-        // 搜索玩家周围 5x5x3 范围内的温暖的床（玩家醒来时通常站在床头/床尾附近）
-        BlockPos headPos = findNearbyWarmBed(player);
+        handleWakeUp(player);
+    }
+
+    /** 睡醒后的统一处理：定位温暖的床 → 触发叠加态（WAKE_UP 模式） */
+    private void handleWakeUp(ServerPlayer player) {
+        // 防重复触发：PlayerWakeUpEvent 与 Tick 兜底可能各调用一次
+        if (!WAKE_HANDLED.add(player.getUUID())) return;
+
+        // 优先用 getSleepingPos()（事件触发时 sleepingPos 通常仍有效）
+        BlockPos headPos = null;
+        var sleepPos = player.getSleepingPos();
+        if (sleepPos.isPresent()) {
+            BlockPos sp = sleepPos.get();
+            BlockState s = player.level().getBlockState(sp);
+            if (s.getBlock() instanceof WarmBedBlock) {
+                headPos = findBedHead(player.level(), sp, s);
+            }
+        }
+
+        // 回退：搜索玩家周围 7x5x7 范围
         if (headPos == null) {
-            JABDMod.LOGGER.warn("[JABD] onPlayerWakeUp：未找到附近的温暖的床，不触发叠加态。");
+            headPos = findNearbyWarmBed(player, 3, 2);
+        }
+
+        if (headPos == null) {
+            JABDMod.LOGGER.warn("[JABD] handleWakeUp：未找到附近的温暖的床（getSleepingPos={}），不触发叠加态。",
+                    sleepPos.isPresent() ? sleepPos.get() : "empty");
             return;
         }
 
@@ -214,14 +250,16 @@ public class DreamEventHandler {
         }
     }
 
-    /** 搜索玩家周围 5x5x3 范围内的温暖的床（返回 HEAD 位置，找不到返回 null） */
+    /** 搜索玩家周围 (2*xz+1) x (2*y+1) 范围内的温暖的床（返回 HEAD 位置，找不到返回 null） */
     @Nullable
-    private static BlockPos findNearbyWarmBed(ServerPlayer player) {
+    private static BlockPos findNearbyWarmBed(ServerPlayer player, int xz, int y) {
         BlockPos ppos = player.blockPosition();
         Level level = player.level();
         BlockPos best = null;
         double bestDist = Double.MAX_VALUE;
-        for (BlockPos pos : BlockPos.betweenClosed(ppos.offset(-2, -1, -2), ppos.offset(2, 2, 2))) {
+        BlockPos min = ppos.offset(-xz, -y, -xz);
+        BlockPos max = ppos.offset(xz, y, xz);
+        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
             BlockState s = level.getBlockState(pos);
             if (s.getBlock() instanceof WarmBedBlock && s.getValue(BedBlock.PART) == BedPart.HEAD) {
                 double d = pos.distSqr(ppos);
@@ -233,7 +271,7 @@ public class DreamEventHandler {
         }
         // 没找到 HEAD，退而求其次找 FOOT 再推 HEAD
         if (best == null) {
-            for (BlockPos pos : BlockPos.betweenClosed(ppos.offset(-2, -1, -2), ppos.offset(2, 2, 2))) {
+            for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
                 BlockState s = level.getBlockState(pos);
                 if (s.getBlock() instanceof WarmBedBlock) {
                     return findBedHead(level, pos, s);
@@ -329,6 +367,21 @@ public class DreamEventHandler {
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END || event.getServer().isStopped()) return;
+
+        // --- Tick 兜底：检测在温暖的床上睡觉的玩家是否已醒来 ---
+        // 1.20.1 跳过夜晚时 PlayerWakeUpEvent 可能不触发
+        if (!SLEEPING_IN_WARM_BED.isEmpty()) {
+            for (ServerPlayer player : List.copyOf(event.getServer().getPlayerList().getPlayers())) {
+                if (!SLEEPING_IN_WARM_BED.containsKey(player.getUUID())) continue;
+                if (!player.isSleeping()) {
+                    SLEEPING_IN_WARM_BED.remove(player.getUUID());
+                    JABDMod.LOGGER.info("[JABD] Tick 检测到玩家 {} 从温暖的床醒来（兜底）", player.getGameProfile().getName());
+                    handleWakeUp(player);
+                }
+            }
+        }
+
+        // --- 回档调度 ---
         if (PENDING_ROLLBACK.isEmpty()) return;
 
         int now = (int) event.getServer().overworld().getGameTime();
