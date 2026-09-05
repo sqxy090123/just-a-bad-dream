@@ -1,43 +1,132 @@
 {
-  "variants": {
-    "facing=north,occupied=false,part=foot,charged=true":  { "model": "jabbadream:block/warm_bed_foot",  "y":   0, "uvlock": true },
-    "facing=south,occupied=false,part=foot,charged=true":  { "model": "jabbadream:block/warm_bed_foot",  "y": 180, "uvlock": true },
-    "facing=west, occupied=false,part=foot,charged=true":  { "model": "jabbadream:block/warm_bed_foot",  "y": 270, "uvlock": true },
-    "facing=east, occupied=false,part=foot,charged=true":  { "model": "jabbadream:block/warm_bed_foot",  "y":  90, "uvlock": true },
-
-    "facing=north,occupied=true, part=foot,charged=true":  { "model": "jabbadream:block/warm_bed_foot_occupied",  "y":   0, "uvlock": true },
-    "facing=south,occupied=true, part=foot,charged=true":  { "model": "jabbadream:block/warm_bed_foot_occupied",  "y": 180, "uvlock": true },
-    "facing=west, occupied=true, part=foot,charged=true":  { "model": "jabbadream:block/warm_bed_foot_occupied",  "y": 270, "uvlock": true },
-    "facing=east, occupied=true, part=foot,charged=true":  { "model": "jabbadream:block/warm_bed_foot_occupied",  "y":  90, "uvlock": true },
-
-    "facing=south,occupied=false,part=head,charged=true":  { "model": "jabbadream:block/warm_bed_head",  "y":   0, "uvlock": true },
-    "facing=north,occupied=false,part=head,charged=true":  { "model": "jabbadream:block/warm_bed_head",  "y": 180, "uvlock": true },
-    "facing=east, occupied=false,part=head,charged=true":  { "model": "jabbadream:block/warm_bed_head",  "y": 270, "uvlock": true },
-    "facing=west, occupied=false,part=head,charged=true":  { "model": "jabbadream:block/warm_bed_head",  "y":  90, "uvlock": true },
-
-    "facing=south,occupied=true, part=head,charged=true":  { "model": "jabbadream:block/warm_bed_head_occupied",  "y":   0, "uvlock": true },
-    "facing=north,occupied=true, part=head,charged=true":  { "model": "jabbadream:block/warm_bed_head_occupied",  "y": 180, "uvlock": true },
-    "facing=east, occupied=true, part=head,charged=true":  { "model": "jabbadream:block/warm_bed_head_occupied",  "y": 270, "uvlock": true },
-    "facing=west, occupied=true, part=head,charged=true":  { "model": "jabbadream:block/warm_bed_head_occupied",  "y":  90, "uvlock": true },
-
-    "facing=north,occupied=false,part=foot,charged=false":  { "model": "jabbadream:block/warm_bed_foot_uncharged",  "y":   0, "uvlock": true },
-    "facing=south,occupied=false,part=foot,charged=false":  { "model": "jabbadream:block/warm_bed_foot_uncharged",  "y": 180, "uvlock": true },
-    "facing=west, occupied=false,part=foot,charged=false":  { "model": "jabbadream:block/warm_bed_foot_uncharged",  "y": 270, "uvlock": true },
-    "facing=east, occupied=false,part=foot,charged=false":  { "model": "jabbadream:block/warm_bed_foot_uncharged",  "y":  90, "uvlock": true },
-
-    "facing=north,occupied=true, part=foot,charged=false":  { "model": "jabbadream:block/warm_bed_foot_uncharged_occupied",  "y":   0, "uvlock": true },
-    "facing=south,occupied=true, part=foot,charged=false":  { "model": "jabbadream:block/warm_bed_foot_uncharged_occupied",  "y": 180, "uvlock": true },
-    "facing=west, occupied=true, part=foot,charged=false":  { "model": "jabbadream:block/warm_bed_foot_uncharged_occupied",  "y": 270, "uvlock": true },
-    "facing=east, occupied=true, part=foot,charged=false":  { "model": "jabbadream:block/warm_bed_foot_uncharged_occupied",  "y":  90, "uvlock": true },
-
-    "facing=south,occupied=false,part=head,charged=false":  { "model": "jabbadream:block/warm_bed_head_uncharged",  "y":   0, "uvlock": true },
-    "facing=north,occupied=false,part=head,charged=false":  { "model": "jabbadream:block/warm_bed_head_uncharged",  "y": 180, "uvlock": true },
-    "facing=east, occupied=false,part=head,charged=false":  { "model": "jabbadream:block/warm_bed_head_uncharged",  "y": 270, "uvlock": true },
-    "facing=west, occupied=false,part=head,charged=false":  { "model": "jabbadream:block/warm_bed_head_uncharged",  "y":  90, "uvlock": true },
-
-    "facing=south,occupied=true, part=head,charged=false":  { "model": "jabbadream:block/warm_bed_head_uncharged_occupied",  "y":   0, "uvlock": true },
-    "facing=north,occupied=true, part=head,charged=false":  { "model": "jabbadream:block/warm_bed_head_uncharged_occupied",  "y": 180, "uvlock": true },
-    "facing=east, occupied=true, part=head,charged=false":  { "model": "jabbadream:block/warm_bed_head_uncharged_occupied",  "y": 270, "uvlock": true },
-    "facing=west, occupied=true, part=head,charged=false":  { "model": "jabbadream:block/warm_bed_head_uncharged_occupied",  "y":  90, "uvlock": true }
-  }
+  "multipart": [
+    {
+      "when": { "part": "foot", "occupied": false, "charged": true },
+      "apply": { "model": "jabbadream:block/warm_bed_foot", "y": 0, "uvlock": true }
+    },
+    {
+      "when": { "part": "foot", "occupied": false, "charged": true, "facing": "south" },
+      "apply": { "y": 180 }
+    },
+    {
+      "when": { "part": "foot", "occupied": false, "charged": true, "facing": "west" },
+      "apply": { "y": 270 }
+    },
+    {
+      "when": { "part": "foot", "occupied": false, "charged": true, "facing": "east" },
+      "apply": { "y": 90 }
+    },
+    {
+      "when": { "part": "foot", "occupied": true, "charged": true },
+      "apply": { "model": "jabbadream:block/warm_bed_foot_occupied", "y": 0, "uvlock": true }
+    },
+    {
+      "when": { "part": "foot", "occupied": true, "charged": true, "facing": "south" },
+      "apply": { "y": 180 }
+    },
+    {
+      "when": { "part": "foot", "occupied": true, "charged": true, "facing": "west" },
+      "apply": { "y": 270 }
+    },
+    {
+      "when": { "part": "foot", "occupied": true, "charged": true, "facing": "east" },
+      "apply": { "y": 90 }
+    },
+    {
+      "when": { "part": "head", "occupied": false, "charged": true },
+      "apply": { "model": "jabbadream:block/warm_bed_head", "y": 0, "uvlock": true }
+    },
+    {
+      "when": { "part": "head", "occupied": false, "charged": true, "facing": "north" },
+      "apply": { "y": 180 }
+    },
+    {
+      "when": { "part": "head", "occupied": false, "charged": true, "facing": "east" },
+      "apply": { "y": 270 }
+    },
+    {
+      "when": { "part": "head", "occupied": false, "charged": true, "facing": "west" },
+      "apply": { "y": 90 }
+    },
+    {
+      "when": { "part": "head", "occupied": true, "charged": true },
+      "apply": { "model": "jabbadream:block/warm_bed_head_occupied", "y": 0, "uvlock": true }
+    },
+    {
+      "when": { "part": "head", "occupied": true, "charged": true, "facing": "north" },
+      "apply": { "y": 180 }
+    },
+    {
+      "when": { "part": "head", "occupied": true, "charged": true, "facing": "east" },
+      "apply": { "y": 270 }
+    },
+    {
+      "when": { "part": "head", "occupied": true, "charged": true, "facing": "west" },
+      "apply": { "y": 90 }
+    },
+    {
+      "when": { "part": "foot", "occupied": false, "charged": false },
+      "apply": { "model": "jabbadream:block/warm_bed_foot_uncharged", "y": 0, "uvlock": true }
+    },
+    {
+      "when": { "part": "foot", "occupied": false, "charged": false, "facing": "south" },
+      "apply": { "y": 180 }
+    },
+    {
+      "when": { "part": "foot", "occupied": false, "charged": false, "facing": "west" },
+      "apply": { "y": 270 }
+    },
+    {
+      "when": { "part": "foot", "occupied": false, "charged": false, "facing": "east" },
+      "apply": { "y": 90 }
+    },
+    {
+      "when": { "part": "foot", "occupied": true, "charged": false },
+      "apply": { "model": "jabbadream:block/warm_bed_foot_uncharged_occupied", "y": 0, "uvlock": true }
+    },
+    {
+      "when": { "part": "foot", "occupied": true, "charged": false, "facing": "south" },
+      "apply": { "y": 180 }
+    },
+    {
+      "when": { "part": "foot", "occupied": true, "charged": false, "facing": "west" },
+      "apply": { "y": 270 }
+    },
+    {
+      "when": { "part": "foot", "occupied": true, "charged": false, "facing": "east" },
+      "apply": { "y": 90 }
+    },
+    {
+      "when": { "part": "head", "occupied": false, "charged": false },
+      "apply": { "model": "jabbadream:block/warm_bed_head_uncharged", "y": 0, "uvlock": true }
+    },
+    {
+      "when": { "part": "head", "occupied": false, "charged": false, "facing": "north" },
+      "apply": { "y": 180 }
+    },
+    {
+      "when": { "part": "head", "occupied": false, "charged": false, "facing": "east" },
+      "apply": { "y": 270 }
+    },
+    {
+      "when": { "part": "head", "occupied": false, "charged": false, "facing": "west" },
+      "apply": { "y": 90 }
+    },
+    {
+      "when": { "part": "head", "occupied": true, "charged": false },
+      "apply": { "model": "jabbadream:block/warm_bed_head_uncharged_occupied", "y": 0, "uvlock": true }
+    },
+    {
+      "when": { "part": "head", "occupied": true, "charged": false, "facing": "north" },
+      "apply": { "y": 180 }
+    },
+    {
+      "when": { "part": "head", "occupied": true, "charged": false, "facing": "east" },
+      "apply": { "y": 270 }
+    },
+    {
+      "when": { "part": "head", "occupied": true, "charged": false, "facing": "west" },
+      "apply": { "y": 90 }
+    }
+  ]
 }

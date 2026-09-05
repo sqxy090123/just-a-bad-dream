@@ -2,7 +2,6 @@ package com.justabaddream.handler;
 
 import com.justabaddream.JABDMod;
 import com.justabaddream.block.WarmBedBlock;
-import com.justabaddream.block.WarmBedBlockEntity;
 import com.justabaddream.capability.DreamStateCapability;
 import com.justabaddream.command.BadDreamCommands;
 import com.justabaddream.config.JABDConfig;
@@ -25,7 +24,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraftforge.event.TickEvent;
@@ -40,6 +38,7 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -179,24 +178,20 @@ public class DreamEventHandler {
      * WAKE_UP 模式（默认）：玩家成功睡过一觉 → 触发备份 & 进入叠加态。
      * <p>
      * 1.20.1 Forge 提供 {@link PlayerWakeUpEvent}（顶层类）。
+     * 注意：此事件触发时 {@code player.getSleepingPos()} 通常已返回 empty，
+     * 因此改为搜索玩家周围方块定位温暖的床。
      */
     @SubscribeEvent
     public void onPlayerWakeUp(PlayerWakeUpEvent event) {
         if (event.getEntity().level().isClientSide) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
-        Optional<BlockPos> bedPos = player.getSleepingPos();
-        if (bedPos.isEmpty()) return;
-        BlockState bs = player.level().getBlockState(bedPos.get());
-        if (!(bs.getBlock() instanceof WarmBedBlock warmBed)) return;
+        // 搜索玩家周围 5x5x3 范围内的温暖的床（玩家醒来时通常站在床头/床尾附近）
+        BlockPos headPos = findNearbyWarmBed(player);
+        if (headPos == null) return;
 
-        BlockPos headPos = findBedHead(player.level(), bedPos.get(), bs);
-        if (headPos != null) {
-            BlockEntity be = player.level().getBlockEntity(headPos);
-            if (be instanceof WarmBedBlockEntity wbe) {
-                wbe.onPlayerWakeUp(player.level().getGameTime());
-            }
-        }
+        BlockState bs = player.level().getBlockState(headPos);
+        if (!(bs.getBlock() instanceof WarmBedBlock)) return;
 
         if (BadDreamCommands.RuntimeOverrides.effectiveTrigger() == JABDConfig.BedTriggerMode.WAKE_UP) {
             triggerDreamEnter(player, headPos, "WAKE_UP");
@@ -206,9 +201,38 @@ public class DreamEventHandler {
         boolean oneTime = BadDreamCommands.RuntimeOverrides.oneTimeUse != null
                 ? BadDreamCommands.RuntimeOverrides.oneTimeUse
                 : JABDConfig.SERVER.oneTimeUse.get();
-        if (oneTime && headPos != null) {
+        if (oneTime) {
             dischargeBed(player.level(), headPos);
         }
+    }
+
+    /** 搜索玩家周围 5x5x3 范围内的温暖的床（返回 HEAD 位置，找不到返回 null） */
+    @Nullable
+    private static BlockPos findNearbyWarmBed(ServerPlayer player) {
+        BlockPos ppos = player.blockPosition();
+        Level level = player.level();
+        BlockPos best = null;
+        double bestDist = Double.MAX_VALUE;
+        for (BlockPos pos : BlockPos.betweenClosed(ppos.offset(-2, -1, -2), ppos.offset(2, 2, 2))) {
+            BlockState s = level.getBlockState(pos);
+            if (s.getBlock() instanceof WarmBedBlock && s.getValue(BedBlock.PART) == BedPart.HEAD) {
+                double d = pos.distSqr(ppos);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = pos.immutable();
+                }
+            }
+        }
+        // 没找到 HEAD，退而求其次找 FOOT 再推 HEAD
+        if (best == null) {
+            for (BlockPos pos : BlockPos.betweenClosed(ppos.offset(-2, -1, -2), ppos.offset(2, 2, 2))) {
+                BlockState s = level.getBlockState(pos);
+                if (s.getBlock() instanceof WarmBedBlock) {
+                    return findBedHead(level, pos, s);
+                }
+            }
+        }
+        return best;
     }
 
     /** 让温暖的床在任何维度都允许睡觉（当 warmBedExplodeInNether=false 时） */
