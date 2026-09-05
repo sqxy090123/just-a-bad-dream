@@ -139,6 +139,9 @@ public class DreamEventHandler {
         // --- RIGHT_CLICK 触发模式 ---
         if (BadDreamCommands.RuntimeOverrides.effectiveTrigger() == JABDConfig.BedTriggerMode.RIGHT_CLICK) {
             triggerDreamEnter(player, findBedHead(level, pos, state), "RIGHT_CLICK");
+        } else if (BadDreamCommands.RuntimeOverrides.effectiveTrigger() == JABDConfig.BedTriggerMode.WAKE_UP) {
+            // WAKE_UP 模式：提示玩家需要睡过整晚才会触发
+            sendHotbar(player, "§7需在夜晚睡过整晚后才会进入梦境现实叠加态……");
         }
 
         // 默认不取消事件，让原版床继续处理（睡觉 / 设置重生点 / 爆炸）
@@ -186,9 +189,14 @@ public class DreamEventHandler {
         if (event.getEntity().level().isClientSide) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
+        JABDMod.LOGGER.info("[JABD] onPlayerWakeUp 触发：玩家={}", player.getGameProfile().getName());
+
         // 搜索玩家周围 5x5x3 范围内的温暖的床（玩家醒来时通常站在床头/床尾附近）
         BlockPos headPos = findNearbyWarmBed(player);
-        if (headPos == null) return;
+        if (headPos == null) {
+            JABDMod.LOGGER.warn("[JABD] onPlayerWakeUp：未找到附近的温暖的床，不触发叠加态。");
+            return;
+        }
 
         BlockState bs = player.level().getBlockState(headPos);
         if (!(bs.getBlock() instanceof WarmBedBlock)) return;
@@ -458,6 +466,7 @@ public class DreamEventHandler {
     /** 进入梦境现实叠加态（发起异步备份 → 等备份完成写入 Capability） */
     private void triggerDreamEnter(ServerPlayer player, BlockPos headPos, String triggerName) {
         Objects.requireNonNull(player, "player");
+        JABDMod.LOGGER.info("[JABD] triggerDreamEnter：玩家={} 触发方式={} 床位置={}", player.getGameProfile().getName(), triggerName, headPos);
 
         // 若玩家已经处于叠加态 → 先退出（按需求：叠加态持续到下一次睡眠）
         DreamStateCapability.get(player).ifPresent(DreamStateCapability.IDreamState::exitDreamState);
